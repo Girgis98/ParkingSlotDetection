@@ -7,6 +7,13 @@ Grid locator Function
 
 
 def locate_grid_mult(x, y):
+    """
+
+    :param x: x coordinate to be mapped
+    :param y: y coordinate to be mapped
+    :return: grid_x: x coordinate after mapping it to its equivalent grid
+    :return: grid_y: y coordinate after mapping it to its equivalent grid
+    """
     if torch.sum(torch.less(x, 0)):
         x[x < 0] = 0
     if torch.sum(torch.less(y, 0)):
@@ -23,12 +30,15 @@ def locate_grid_mult(x, y):
     return grid_x, grid_y
 
 
-"""## Convert Marking Point to Tensor
-
-"""
+"""## Convert Marking Point to Tensor"""
 
 
 def marking_to_tensor(marking_points):
+    """
+    :param marking_points: marking points to be converted to tensor
+
+    :return: output_tensor: tensor of marking points
+    """
     output_tensor = torch.zeros((5, marking_points[0].shape[0]))
     for i in range(5):
         output_tensor[i] = marking_points[i]
@@ -39,6 +49,11 @@ def marking_to_tensor(marking_points):
 
 
 def remove_row_ls(tens, row_index_ls):
+    """
+    :param tens: tensor to remove rows from
+    :param row_index_ls: index list of rows to be removed
+    :return: tensor after removing rows
+    """
     tens_copy = torch.clone(tens)
     ls = []
     for i in range(tens_copy.shape[0]):
@@ -55,6 +70,12 @@ def remove_row_ls(tens, row_index_ls):
 
 
 def calc_angle_2(p1, p2):
+    """
+    :param p1: first point
+
+    :param p2: second point
+    :return: theta: angle between first point and second point
+    """
     y_diff = p2[1] - p1[1]
     x_diff = p2[0] - p1[0]
     theta = np.zeros_like(x_diff)
@@ -66,6 +87,11 @@ def calc_angle_2(p1, p2):
 
 
 def complete_marking_vector_label_mult(training_examples):
+    """
+    :param training_examples: training examples to create target label for them
+
+    :return: label_vector: target label of passed training examples
+    """
     number_of_trainig_examples = training_examples['image'].shape[0]
     label_vector = torch.zeros((number_of_trainig_examples, 6, 16, 16), dtype = torch.float64)
 
