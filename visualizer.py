@@ -1,8 +1,8 @@
 import cv2
 import matplotlib.pyplot as plt
 import math
-
-from Utils.new_utensils_slotinfrence import calc_angle
+import numpy as np
+from Utils.new_utensils_slotinference import calc_angle
 
 """
 # image visulizer
@@ -34,8 +34,11 @@ def visualize_after_thres(image, prediction, plot=False):
     :param plot: boolean attribute to indicate whether to plot image or not
     :return: image after drawing points with its shape on it
     """
+    image1 = np.array(image.permute(1, 2, 0))  # , dtype = np.uint8)
+    imagef = image1.copy()
+
     pre = prediction
-    # plt.imshow(image)
+    print(len(pre),pre)
     for i in range(len(pre)):
         p0_x = (pre[i, 1].item())
         p0_y = (pre[i][2].item())
@@ -68,18 +71,20 @@ def visualize_after_thres(image, prediction, plot=False):
         p3_x = int(round(p3_x))
         p3_y = int(round(p3_y))
 
-        cv2.line(image, (p0_x, p0_y), (p1_x, p1_y), (0, 0, 255), 2)
-        cv2.putText(image, str(confidence / 100), (p0_x, p0_y),
+
+        cv2.line(imagef, (p0_x, p0_y), (p1_x, p1_y), (0, 0, 255), 2)
+        cv2.putText(imagef, str(confidence / 100), (p0_x, p0_y),
                     cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 0))
-        if pre[i, 5].item() > 50:
-            cv2.line(image, (p0_x, p0_y), (p2_x, p2_y), (0, 0, 255), 2)
+        if pre[i, 5].item() ==1:
+            cv2.line(imagef, (p0_x, p0_y), (p2_x, p2_y), (0, 0, 255), 2)
         else:
             p3_x = int(round(p3_x))
             p3_y = int(round(p3_y))
-            cv2.line(image, (p2_x, p2_y), (p3_x, p3_y), (0, 0, 255), 2)
+            cv2.line(imagef, (p2_x, p2_y), (p3_x, p3_y), (0, 0, 255), 2)
     if plot:
-        plt.imshow(image)
-    return image
+        plt.imshow(imagef)
+        plt.show()
+    return imagef
 
 
 """# slot visulizer
@@ -95,7 +100,6 @@ def visualize_slot(image, prediction, plot=False):
     :return: image after drawing slots  on it
     """
     slots = prediction
-    # plt.imshow(image.permute(1, 2, 0))
     for i in range(len(slots)):
         x = [slots[i]['x1'].item(), slots[i]['x2'].item()]
         y = [slots[i]['y1'].item(), slots[i]['y2'].item()]
@@ -104,21 +108,34 @@ def visualize_slot(image, prediction, plot=False):
         mark2_x = [slots[i]['x2'].item(), slots[i]['dir_x2'].item()]
         mark2_y = [slots[i]['y2'].item(), slots[i]['dir_y2'].item()]
 
-        p1 = '1'
-        p2 = '2'
-        # plt.text(slots[i]['x1']+15, slots[i]['y1']  , p1,fontsize=10 , color='white')
-        # plt.text(slots[i]['x2']+15, slots[i]['y2'] , p2,fontsize=10 , color='white')
-        txt = 'slot ' + str(i + 1)
-        # plt.text(max(slots[i]['x1'],slots[i]['x2']),(slots[i]['y1']+slots[i]['y2']) /2 +15 , txt,fontsize=12 , color='red')
+        if slots[i]['type'] == 1:
+            txt = 'Perpendicular'
+        else:
+            txt = 'Parallel'
+
+        x0 = int(round(x[0]))
+        y0 = int(round(y[0]))
+        x1 = int(round(x[1]))
+        y1 = int(round(y[1]))
+
+        m1_x0 = int(round(mark1_x[0]))
+        m1_y0 = int(round(mark1_y[0]))
+        m1_x1 = int(round(mark1_x[1]))
+        m1_y1 = int(round(mark1_y[1]))
+        m2_x0 = int(round(mark2_x[0]))
+        m2_y0 = int(round(mark2_y[0]))
+        m2_x1 = int(round(mark2_x[1]))
+        m2_y1 = int(round(mark2_y[1]))
+
+        cv2.line(image, (x0, y0), (x1,y1 ), (255, 0, 0), 2)
+        cv2.line(image, (m1_x0, m1_y0),(m1_x1, m1_y1), (255, 0, 0), 2)
+        cv2.line(image, (m2_x0,m2_y0),(m2_x1,m2_y1 ), (255, 0, 0), 2)
+        cv2.putText(image,txt,(int((x0+x1)/2) , int((y0+y1)/2)), cv2.FONT_HERSHEY_TRIPLEX, 1, (0, 255, 0),4)
+    if plot:
+        # plt.text(max(slots[i]['x1'],slots[i]['x2']),(slots[i]['y1']+slots[i]['y2']) /2 +15 , txt,fontsize=12 , color='green')
         # dir_x = [slots[i]['dir_x1'],slots[i]['dir_x2']]
         # dir_y = [slots[i]['dir_y1'],slots[i]['dir_y2']]
         # plt.plot(x,y,mark1_x,mark1_y,mark2_x, mark2_y,linewidth=3, markersize=3, color='red')
-
-        cv2.line(image, (int(round(x[0])), int(round(y[0]))), (int(round(x[1])), int(round(y[1]))), (255, 0, 0), 2)
-        cv2.line(image, (int(round(mark1_x[0])), int(round(mark1_y[0]))),
-                 (int(round(mark1_x[1])), int(round(mark1_y[1]))), (255, 0, 0), 2)
-        cv2.line(image, (int(round(mark2_x[0])), int(round(mark2_y[0]))),
-                 (int(round(mark2_x[1])), int(round(mark2_y[1]))), (255, 0, 0), 2)
-    if plot:
         plt.imshow(image)
+        plt.show()
     return image
