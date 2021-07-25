@@ -80,7 +80,7 @@ def get_predicted_points(prediction, thresh):  # prediction (training,6,16,16)
                     [predicted_points_copy[i][0:j, :], predicted_points_copy[i][j + 1:, :]])
             if predicted_points[i][j][1] > 511 or predicted_points[i][j][
                 2] > 511:  # remove points with negative x , y values
-                print('here', predicted_points[i])
+
                 predicted_points_copy[i] = torch.cat(
                     [predicted_points_copy[i][0:j - 1, :], predicted_points_copy[i][j:, :]])
     return predicted_points_copy
