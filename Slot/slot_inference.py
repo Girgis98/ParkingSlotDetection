@@ -13,6 +13,10 @@ from Utils.process import remove_row_ls
 
 
 def mapper_vectorized(prediction_in):
+    '''
+    :param prediction_in: prediction values that will be mapped
+    :return: mapped values of the prediction
+    '''
     prediction = torch.clone(prediction_in)
     prediction[:, 1:3, :, :] = (prediction[:, 1:3, :, :] * 32) + 16
     values = torch.arange(0, 512, 32)
@@ -41,6 +45,13 @@ def mapper_vectorized(prediction_in):
 
 
 def predict(image, model, device):
+    '''
+
+    :param image: input image
+    :param model: our implemented model
+    :param device: Cuda
+    :return: output reshaped mapped prediction
+    '''
     out = model(image).to(device)
     out = out.reshape((-1, 6, 16, 16))
     out = mapper_vectorized(out)
@@ -53,6 +64,12 @@ takes the predicted point and the threshold, check if the confidence value is le
 
 
 def get_predicted_points(prediction, thresh):  # prediction (training,6,16,16)
+    '''
+
+    :param prediction: input prediction in format of 6x16x16
+    :param thresh: threshold that are going to compare with to remove points with lower confidence
+    :return: filtered points
+    '''
     """Get marking points from one predicted feature map."""
     assert isinstance(prediction, torch.Tensor)
     if len(prediction.shape) == 3:
@@ -92,6 +109,11 @@ take predicted points and check if there is more than one point close to each ot
 
 
 def non_maximum_suppression(pred_points):  # pred_points (training,num_points,6) (list)
+    '''
+
+    :param pred_points: list of the predicted points
+    :return: predicted points after removing the points that are near to each other and have lower confidence
+    '''
     """Perform non-maxmum suppression on marking points."""
     pred_copy = pred_points
     threshold_near = 40
@@ -118,8 +140,13 @@ def non_maximum_suppression(pred_points):  # pred_points (training,num_points,6)
 function checks if the line passes between the two marking points contains another third point between them or not
 """
 
-
 def pass_through_third_point(marking_points, i, j):
+    '''
+    :param marking_points: marking points of the slot
+    :param i: first point to check on
+    :param j: second point to check on
+    :return: boolean output if their is a third point between these two points, false otherwise
+    '''
     angle_threhold = 5
     x_1 = marking_points[i][1]
     y_1 = marking_points[i][2]
@@ -143,11 +170,13 @@ def pass_through_third_point(marking_points, i, j):
 """## Determine Point Shape
  determine the shape of the slot line based on the vector joining the two slot points and the vector between the point and its direction
 """
-
-
 def detemine_point_shape(point, vector):
     """Determine which category the point is in."""
-
+    '''
+       :param point: marking points of the slot
+       :param vector: directional vector of the point
+       :return: shape of the slot whether its l_up, l_down, t_down or t_middle
+    '''
     none = 0
     l_down = 2
     t_down = 3
@@ -193,6 +222,11 @@ according to the shape returned from the "determine_point_shape" function we che
 
 def pair_marking_points(point_a, point_b):
     """See whether two marking points form a slot."""
+    '''
+       :param point_a: first marking slot point
+       :param point_b: second marking slot point
+       :return: pairing of a valid slot if their is a one 
+    '''
     point_a, point_b = order_pair2(point_a, point_b)
     vector_ab = np.array([point_b[1] - point_a[1], point_b[2] - point_a[2]])
     vector_ab = vector_ab / np.linalg.norm(vector_ab)
@@ -259,6 +293,11 @@ def pair_marking_points(point_a, point_b):
 
 
 def inference_slots(marking_points):
+    '''
+
+    :param marking_points: slot marking points
+    :return: dictionary of the valid slot information
+    '''
     perpend_min = 120
     perpend_max = 195
     parallel_min = 335
@@ -311,6 +350,12 @@ def inference_slots(marking_points):
 
 
 def order_pair2(point1, point2):
+    '''
+
+    :param point1: first slot marking point
+    :param point2: second slot marking point
+    :return: order pair of these two points
+    '''
     if abs(point2[2] - point1[2]) < 20:
         if point2[1] > point1[1]:
             return point1, point2
@@ -324,6 +369,11 @@ def order_pair2(point1, point2):
 
 
 def order_pair(point1, point2):
+    '''
+       :param point1: first slot marking point
+       :param point2: second slot marking point
+       :return: order pair of these two points
+    '''
     if abs(point2[2] - point1[2]) < 20:
         if point2[1] > point1[1]:
             return point2, point1
