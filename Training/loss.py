@@ -7,6 +7,15 @@ import numpy as np
 
 
 def my_loss(output, label):
+    '''
+     Custom MSE Loss Function
+    :param output: Model Prediction
+    :type output: 6x16x16 tensor
+    :param label: Objective
+    :type label: 6x16x16 tensor
+    :return: Loss1 + Loss2 (Total Loss)
+    :rtype: 1x1 tensor
+    '''
     conf_flag = (label[:, 0, :, :] == 0.5)
     not_conf_flag = (label[:, 0, :, :] == -0.5)
     out = output.permute(0, 2, 3, 1)
@@ -41,6 +50,15 @@ def objective_exp(x, a, b):
 
 
 def my_loss_exp(output, label):
+    '''
+    Custom MSE Loss Function
+    :param output: Model Prediction
+    :type output: 6x16x16 tensor
+    :param label: Objective
+    :type label: 6x16x16 tensor
+    :return: Loss1 + Loss2 (Total Loss)
+    :rtype: 1x1 tensor
+    '''
     conf_max = 0.5
     conf_min = -0.5
     conf_flag = (label[:, 0, :, :] == conf_max)
