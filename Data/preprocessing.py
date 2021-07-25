@@ -1,4 +1,5 @@
 
+
 from Data.dataset import MarkingPoint
 import codecs
 import torch
@@ -24,13 +25,9 @@ import random
 
 def rotate_vector(vector, angle_degree):
     '''
-
-    :param vector:
-    :type vector:
-    :param angle_degree:
-    :type angle_degree:
-    :return:
-    :rtype:
+    :param vector: desired vector to be rotated
+    :param angle_degree: angle of rotation
+    :return: rotated vector
     '''
     """Rotate a vector with given angle in degree."""
     angle_rad = math.pi * angle_degree / 180
@@ -40,15 +37,12 @@ def rotate_vector(vector, angle_degree):
     return coord_ls
 
 def rotate_centralized_marks(centralied_marks, angle_degree):
-    '''
-    :param centralied_marks:
-    :type centralied_marks:
-    :param angle_degree:
-    :type angle_degree:
-    :return:
-    :rtype:
-    '''
     """Rotate centralized marks with given angle in degree."""
+    '''
+    :param centralied_marks: centralied marks
+    :param angle_degree: angle of rotation
+    :return: rotated marks with the specified angle
+    '''
     rotated_marks = []
     rotated_mark = []
     for i in range(len(centralied_marks)):
@@ -61,49 +55,49 @@ def rotate_centralized_marks(centralied_marks, angle_degree):
         dir_x_y[0] += 256
         dir_x_y[1] += 256
 
-        if x_y[0]<10 or x_y[0]>502 or x_y[1]<10 or x_y[1]>502:
+        if(x_y[0]<10 or x_y[0]>502 or x_y[1]<10 or x_y[1]>502):
           pass
-        elif dir_x_y[0]<0 or dir_x_y[0]>512 or dir_x_y[1]<0 or dir_x_y[1]>512:
+        elif(dir_x_y[0]<0 or dir_x_y[0]>512 or dir_x_y[1]<0 or dir_x_y[1]>512): 
 
-          if dir_x_y[0]<0:
+          if(dir_x_y[0]<0):
             offset = abs(dir_x_y[0])
             dir_x_y[0] += (offset + 2)
 
-            if dir_x_y[1]>x_y[1]:
-              dir_x_y[1] -= offset
+            if(dir_x_y[1]>x_y[1]):
+              dir_x_y[1] -= (offset)
     
             else:
-              dir_x_y[1] += offset
+              dir_x_y[1] += (offset)
               
 
-          elif dir_x_y[0]>512:
+          elif(dir_x_y[0]>512): 
             offset = abs(dir_x_y[0] - 512)
             dir_x_y[0] -= (offset + 2)
 
-            if dir_x_y[1]>x_y[1]:
-              dir_x_y[1] -= offset
+            if(dir_x_y[1]>x_y[1]):
+              dir_x_y[1] -= (offset)
             else:
-              dir_x_y[1] += offset
+              dir_x_y[1] += (offset) 
                
 
-          elif dir_x_y[1]<0:
+          elif(dir_x_y[1]<0): 
             offset = abs(dir_x_y[1])
             dir_x_y[1] += (offset + 2)
 
-            if dir_x_y[0]>x_y[0]:
-              dir_x_y[0] -= offset
+            if(dir_x_y[0]>x_y[0]):
+              dir_x_y[0] -= (offset)
             else:
-              dir_x_y[0] += offset
+              dir_x_y[0] += (offset)  
               
 
-          elif dir_x_y[1]>512:
+          elif(dir_x_y[1]>512):
             offset = abs(dir_x_y[1] - 512)
             dir_x_y[1] -= (offset + 2)
 
-            if dir_x_y[0]>x_y[0]:
-              dir_x_y[0] -= offset
+            if(dir_x_y[0]>x_y[0]):
+              dir_x_y[0] -= (offset)
             else:
-              dir_x_y[0] += offset
+              dir_x_y[0] += (offset)  
               
 
           rotated_mark.append(x_y[0])
@@ -125,16 +119,12 @@ def rotate_centralized_marks(centralied_marks, angle_degree):
     return rotated_marks
 
 def rotate_image(image, angle_degree):
-    '''
-
-    :param image:
-    :type image:
-    :param angle_degree:
-    :type angle_degree:
-    :return:
-    :rtype:
-    '''
     """Rotate image with given angle in degree."""
+    '''
+    :param image: desired image to be rotated
+    :param angle_degree: angle of rotation
+    :return: rotated image
+    '''
     rows, cols, _ = image.shape
     #print(rows,cols)
     rotation_matrix = cv2.getRotationMatrix2D((rows/2, cols/2), angle_degree, 1)
@@ -142,17 +132,11 @@ def rotate_image(image, angle_degree):
 
 def generate_dataset(parking_image,name,angle_step,dst_path):
     '''
-
-    :param parking_image:
-    :type parking_image:
-    :param name:
-    :type name:
-    :param angle_step:
-    :type angle_step:
-    :param dst_path:
-    :type dst_path:
+    :param parking_image: (dictionary of) image that will be augmented
+    :param name: name to be saved with
+    :param angle_step: angle of augmentation
+    :param dst_path: destination path that new augmented data will be saved at
     :return:
-    :rtype:
     '''
 
     for angle in range(0, 360, angle_step):
@@ -165,22 +149,19 @@ def generate_dataset(parking_image,name,angle_step,dst_path):
         if len(marking_points)!=0:
           in_image = rotated_image
           in_image = cv2.cvtColor(np.array(in_image), cv2.COLOR_RGB2BGR)
-          in_image = cv2.convertScaleAbs(in_image, alpha= 255.0)
-          cv2.imwrite(f"{dst_path}/{name}_{added_name}.jpg", in_image)
+          in_image = cv2.convertScaleAbs(in_image, alpha=(255.0))
+          cv2.imwrite((f"{dst_path}/{name}_{added_name}.jpg"), in_image)
           in_json ={}
           in_json = {'marks':marking_points,'slots':parking_image['slots']}
           path = f"{dst_path}/{name}_{added_name}.json"
           json.dump(in_json, codecs.open(path, 'w', encoding='utf-8'),
-                    separators=(',', ':'), sort_keys=True) # this saves the array in .json format
-    return 0
+                    separators=(',', ':'), sort_keys=True) ### this saves the array in .json format
+          #print(angle)
 
 def load_jpg_json(path):
     '''
-
-    :param path:
-    :type path:
-    :return:
-    :rtype:
+    :param path: path which are going to load data from
+    :return: names of jpg and json files
     '''
     try:
         jpg_names = []
@@ -196,13 +177,9 @@ def load_jpg_json(path):
 
 def check_jpeg_json(json_names,jpg_names):
     '''
-
-    :param json_names:
-    :type json_names:
-    :param jpg_names:
-    :type jpg_names:
-    :return:
-    :rtype:
+    :param json_names: names of json files
+    :param jpg_names: names of jpg files
+    :return: names of missing json and jpg files
     '''
     missing_json = []
     missing_jpg = []
@@ -219,32 +196,25 @@ def check_jpeg_json(json_names,jpg_names):
 def remove_empty_images(names_jpg,root_dst):
     '''
 
-    :param names_jpg:
-    :type names_jpg:
-    :param root_dst:
-    :type root_dst:
-    :return:
-    :rtype:
+    :param names_jpg: names of jpg files required to be removed
+    :param root_dst: path of distination
     '''
     empty_file = []
     for i in range(len(names_jpg)):
         size = Path(f"{root_dst}/{names_jpg[i]}.jpg").stat().st_size
-    if size == 0:
-        empty_file.append(names_jpg[i])
+        if size == 0:
+          empty_file.append(names_jpg[i])
     for i in range(len(empty_file)):
         os.remove(f"{root_dst}/{empty_file[i]}.json")
         os.remove(f"{root_dst}/{empty_file[i]}.jpg")
 
 
 def checkIfDuplicates_2(listOfElems):
+    ''' Check if given list contains any duplicates '''
     '''
-
-    :param listOfElems:
-    :type listOfElems:
-    :return:
-    :rtype:
+    :param listOfElems: list to be checked if any duplicates of its elements
+    :return: boolean output, True if their is a duplicate false otherwise
     '''
-    ''' Check if given list contains any duplicates '''    
     setOfElems = set()
     for elem in listOfElems:
         if elem in setOfElems:
@@ -256,115 +226,97 @@ def checkIfDuplicates_2(listOfElems):
 def remove_miss_labeled_image(names,root_dst):
     '''
 
-    :param names:
-    :type names:
-    :param root_dst:
-    :type root_dst:
-    :return:
-    :rtype:
+    :param names: names of labels that will be removed
+    :param root_dst: path of destination
     '''
     empty = []
     for i, name in enumerate(names):
-        with open(f"{root_dst}/{name}.json", ) as file:
+        print(i)
+        with open((f"{root_dst}/{name}.json"), ) as file:
           a = json.load(file)['marks']
-          if len(a[0])<5:
+          if(len(a[0])<5):
+            print(len(a[0]))
+            print(i,name)
             empty.append(name)
     for i in range(len(empty)):
         os.remove(f"{root_dst}/{empty[i]}.json")
         os.remove(f"{root_dst}/{empty[i]}.jpg")
-
+        print(i)
 
 def invert_image(parking_image,name,dst_path):
-  '''
+    '''
 
-  :param parking_image:
-  :type parking_image:
-  :param name:
-  :type name:
-  :param dst_path:
-  :type dst_path:
-  :return:
-  :rtype:
-  '''
-  invert = torchvision.transforms.RandomVerticalFlip(p=1)  #RandomHorizontalFlip(p=1)
-  image_inverted = invert(parking_image['image'])
-  image = parking_image['image']
-  label = parking_image['marks']
-  label_inverted_full = []
-  label_inverted = []
-  marking_points = []
-  for i in range (len(label)):
-    label_inverted.append (label[i][0])
-    label_inverted.append (512 - label[i][1])
-    label_inverted.append (label[i][2])
-    label_inverted.append (512 - label[i][3])
-    label_inverted.append (label[i][4])
-    label_inverted_full.append(label_inverted)
+    :param parking_image: input image to be inverted
+    :param name: name to be saved with
+    :param dst_path: destination path tp be saved in
+    '''
+    invert = torchvision.transforms.RandomVerticalFlip(p=1)  #RandomHorizontalFlip(p=1)
+    image_inverted = invert(parking_image['image'])
+    image = parking_image['image']
+    label = parking_image['marks']
+    label_inverted_full = []
     label_inverted = []
-  for label in np.array(label_inverted_full):  
-      marking_points.append(MarkingPoint(*label))  
+    marking_points = []
+    for i in range (len(label)):
+        label_inverted.append (label[i][0])
+        label_inverted.append (512 - label[i][1])
+        label_inverted.append (label[i][2])
+        label_inverted.append (512 - label[i][3])
+        label_inverted.append (label[i][4])
+        label_inverted_full.append(label_inverted)
+        label_inverted = []
+    for label in np.array(label_inverted_full):
+          marking_points.append(MarkingPoint(*label))
 
-  in_image = image_inverted.permute(1, 2, 0)
-  in_image = cv2.cvtColor(np.array(in_image), cv2.COLOR_RGB2BGR)
-  in_image = cv2.convertScaleAbs(in_image, alpha=(255.0))
-  cv2.imwrite((f"{dst_path}/{name}.jpg"), in_image)
-  in_json ={}
-  in_json = {'marks':marking_points,'slots':parking_image['slots']}
-  path = f""{dst_path}/{name}.json"
-  json.dump(in_json, codecs.open(path, 'w', encoding='utf-8'),
-            separators=(',', ':'), sort_keys=True) # this saves the array in .json format
+    in_image = image_inverted.permute(1, 2, 0)
+    in_image = cv2.cvtColor(np.array(in_image), cv2.COLOR_RGB2BGR)
+    in_image = cv2.convertScaleAbs(in_image, alpha=(255.0))
+    cv2.imwrite((f"{dst_path}/{name}.jpg"), in_image)
+    in_json ={}
+    in_json = {'marks':marking_points,'slots':parking_image['slots']}
+    path = f""{dst_path}/{name}.json"
+    json.dump(in_json, codecs.open(path, 'w', encoding='utf-8'),
+                separators=(',', ':'), sort_keys=True) ### this saves the array in .json format
 
 """#### Converting jpg to pt"""
 
 def jpg_2_pt(root_src,names):
     '''
-
-    :param root_src:
-    :type root_src:
-    :param names:
-    :type names:
-    :return:
-    :rtype:
+    :param root_src: source path to read images from
+    :param names: list of labels
     '''
     for i in range(len(names)):
         image = cv2.imread(f"{root_src}/{names[i]}.jpg")
         t = torch.from_numpy(image)
         torch.save(t,f"{root_src}/{names[i]}.pt")
 
-"""Generate shuffled data """
+"""####Generate shuffled data """
 
 def random_generation(file_size,root_src,root_dst,added_name):
-  '''
+    '''
+    :param file_size: file size
+    :param root_src: source path to read images from
+    :param root_dst: destination path to save images in
+    :param added_name: name to be added to the image name
+    '''
+    names = []
+    for file in os.listdir(root_src):
+                  if file.endswith(".json"):
+                      names.append(os.path.splitext(file)[0])
 
-  :param file_size:
-  :type file_size:
-  :param root_src:
-  :type root_src:
-  :param root_dst:
-  :type root_dst:
-  :param added_name:
-  :type added_name:
-  :return:
-  :rtype:
-  '''
-  names = []
-  for file in os.listdir(root_src):
-              if file.endswith(".json"):
-                  names.append(os.path.splitext(file)[0])
+      random_list = []
+    while len(random_list)<file_size:
+        n = random.randint(0,len(names))
+        if not n in random_list:
+          random_list.append(n)
 
-  random_list = []
-  while len(random_list)<file_size:
-    n = random.randint(0,len(names))
-    if not n in random_list:
-      random_list.append(n)
-
-  for i in range(0,len(random_list)):
-      src_json = f"{root_src}/{names[i]}.json"
-      dst_json = f"{root_dst}/{added_name}{names[i]}.json"
-      copyfile(src_json, dst_json)
-      src_jpg = f"{root_src}/{names[i]}.jpg"
-      dst_jpg = f"{root_dst}/{added_name}{names[i]}.jpg"
-      copyfile(src_jpg, dst_jpg)
+    for i in range(0,len(random_list)):
+          src_json = f"{root_src}/{names[i]}.json"
+          dst_json = f"{root_dst}/{added_name}{names[i]}.json"
+          copyfile(src_json, dst_json)
+          src_jpg = f"{root_src}/{names[i]}.jpg"
+          dst_jpg = f"{root_dst}/{added_name}{names[i]}.jpg"
+          copyfile(src_jpg, dst_jpg)
 
 
 
@@ -375,22 +327,13 @@ class Rescale(object):
     """
 
     def __init__(self, output_size):
-        '''
-
-        :param output_size:
-        :type output_size:
-        '''
+        """
+        initialization of rescaler class
+        """
         assert isinstance(output_size, (int, tuple))
         self.output_size = output_size
 
     def __call__(self, sample):
-        '''
-
-        :param sample:
-        :type sample:
-        :return:
-        :rtype:
-        '''
         image =sample['image']
         marking_points = sample['marks']
         slots = sample['slots']
