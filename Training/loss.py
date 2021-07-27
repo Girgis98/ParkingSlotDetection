@@ -33,24 +33,11 @@ def decay_fun(x):
 
 
 def objective_power(x, a, b):
-    """
 
-    :param x: input x
-    :param a: constant coeffienct
-    :param b: power coeffiecnt
-    :return: the result of fucntion
-    """
     return a * pow(x, b)
 
 
 def objective_exp(x, a, b):
-    """
-
-    :param x: input x
-    :param a: constant coeffienct
-    :param b: power of exponential coeffiecnt
-    :return: the result of fucntion
-    """
     return a * np.exp(x * b)
 
 

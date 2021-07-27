@@ -222,7 +222,7 @@ def pair_marking_points(point_a, point_b):
     if dot_product < -0.5:
         return [0]
     else:
-
+        print('same',point_shape_a,point_shape_b)
         if point_shape_a == l_up and point_shape_b == l_up:
             return [1, point_shape_a, point_shape_b]
         if point_shape_a == l_down and point_shape_b == l_down:
@@ -259,22 +259,25 @@ def pair_marking_points(point_a, point_b):
 
 
 def inference_slots(marking_points):
+    print('inference',marking_points)
+    print(len(marking_points))
     perpend_min = 120
     perpend_max = 195
     parallel_min = 335
-    parallel_max = 370
-    num_detected = len(marking_points)#.shape[0]
+    parallel_max = 372
+    num_detected = marking_points.shape[0]
     perpen_parallel = 0  # perpendicular = 1 , parallel = 2
     slot = {}
     slots = []
     marks_list = []
     slots_list = []
-    for i in range(num_detected - 1):
+    for i in range(num_detected -1 ):
         for j in range(i + 1, num_detected):
             point_i = marking_points[i]
             point_j = marking_points[j]
             # Step 1: length filtration.
             distance = calc_point_squre_dist(point_i, point_j)
+            print(distance)
             if not (perpend_min <= distance <= perpend_max
                     or parallel_min <= distance <= parallel_max):
                 continue

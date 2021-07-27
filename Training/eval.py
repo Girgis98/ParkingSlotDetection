@@ -6,15 +6,6 @@ from model import MarkingPointDetector
 
 
 def eval(output, label):
-    '''
-    Evaluate Model after training
-    :param output: Model Prediction
-    :type output: 6x16x16 tensor
-    :param label: Objective
-    :type label: 6x16x16 tensor
-    :return: accuracy, f1_score, precision, recall
-    :rtype: float64
-    '''
     conf_flag = (label[:, 0, :, :] == 0.5)
     not_conf_flag = (label[:, 0, :, :] == -0.5)
     out = output.permute(0, 2, 3, 1)
@@ -42,7 +33,6 @@ def eval(output, label):
 
     total_positive = (label_p[conf_flag][:, 0]).shape[0]
 
-    '''Calculation Details'''
     # c = torch.sum(confidence_ones).item()
     # x = torch.sum(x_val).item()
     # y = torch.sum(y_val).item()
@@ -71,3 +61,5 @@ def eval(output, label):
     f1_score = 2 * (recall * precision) / (recall + precision) if (recall + precision) != 0 else 0
     print("TP:", true_positive, " TN:", true_negative, " FP:", false_positive, " FN:", false_negative)
     return accuracy, f1_score, precision, recall
+
+

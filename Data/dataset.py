@@ -39,13 +39,6 @@ class ParkingSlotDataset(Dataset):
     """Parking slot dataset."""
 
     def __init__(self, root, names_ls = []):
-        '''
-
-        :param root:
-        :type root:
-        :param names_ls:
-        :type names_ls:
-        '''
 
         super(ParkingSlotDataset, self).__init__()
         self.root = root
@@ -69,11 +62,6 @@ class ParkingSlotDataset(Dataset):
                 print('total len:', len(self.sample_names))
 
     def split(self):
-        '''
-
-        :return:
-        :rtype:
-        '''
         total_num = len(self.sample_names)
         train_num = int(0.85 * total_num)
 
@@ -84,13 +72,6 @@ class ParkingSlotDataset(Dataset):
         self.test_names = self.all_samples[train_num:]
 
     def change_mode(self, mode):
-        '''
-
-        :param mode:
-        :type mode:
-        :return:
-        :rtype:
-        '''
         if mode == 'train' and self.mode == 'test':
             self.sample_names, self.test_names = self.test_names.copy(), self.sample_names.copy()
             self.mode = 'train'
@@ -143,35 +124,21 @@ class ParkingSlotDataset(Dataset):
         return {'image': image, 'marks': marking_points, 'slots': slots}
 
     def __len__(self):
-        '''
-
-        :return:
-        :rtype:
-        '''
         return len(self.sample_names)
 
     def __set__(self, index, value):
-        '''
-
-        :param index:
-        :type index:
-        :param value:
-        :type value:
-        :return:
-        :rtype:
-        '''
-        # save file name then delete file then create another file with new data
+        # save file name then delete file thrn create another file with new data
         name = self.sample_names[index]
         in_image = value['image']
         in_image = in_image.permute(1, 2, 0)
         in_image = cv2.cvtColor(np.array(in_image), cv2.COLOR_RGB2BGR)
-        in_image = cv.convertScaleAbs(in_image, alpha = 255.0)
-        cv2.imwrite(f"{self.root}/{name}.jpg", in_image)
+        in_image = cv.convertScaleAbs(in_image, alpha = (255.0))
+        cv2.imwrite((f"{self.root}/{name}.jpg"), in_image)
         in_json = {}
         in_json = {'marks': value['marks'], 'slots': value['slots']}
         path = f"{self.root}/{name}.json"
         json.dump(in_json, codecs.open(path, 'w', encoding = 'utf-8'),
-                  separators = (',', ':'), sort_keys = True)  # this saves the array in .json format
+                  separators = (',', ':'), sort_keys = True)  ### this saves the array in .json format
 
 
 """ Class version that reads images from 1 folder (small scale)
@@ -212,25 +179,25 @@ class ParkingSlotDatasetSingleFolder(Dataset):
         marking_points = []
         slots = []
 
-        with open(f"{self.root}/{name}.json", ) as file:
+        with open((f"{self.root}/{name}.json"), ) as file:
             if not isinstance(json.load(file)['marks'][0], list):
-                with open(f"{self.root}/{name}.json", ) as file:
+                with open((f"{self.root}/{name}.json"), ) as file:
                     marking_points.append(MarkingPoint(*json.load(file)['marks']))
             else:
-                with open(f"{self.root}/{name}.json", ) as file:
+                with open((f"{self.root}/{name}.json"), ) as file:
                     for label in np.array(json.load(file)['marks']):
                         marking_points.append(MarkingPoint(*label))
 
-        with open(f"{self.root}/{name}.json", ) as file:
-            if len(json.load(file)['slots']) == 0:
+        with open((f"{self.root}/{name}.json"), ) as file:
+            if (len(json.load(file)['slots']) == 0):
                 pass
             else:
-                with open(f"{self.root}/{name}.json", ) as file:
+                with open((f"{self.root}/{name}.json"), ) as file:
                     if not isinstance(json.load(file)['slots'][0], list):
-                        with open(f"{self.root}/{name}.json", ) as file:
+                        with open((f"{self.root}/{name}.json"), ) as file:
                             slots.append(Slot(*(json.load(file)['slots'])))
                     else:
-                        with open(f"{self.root}/{name}.json", ) as file:
+                        with open((f"{self.root}/{name}.json"), ) as file:
                             for label in json.load(file)['slots']:
                                 slots.append(Slot(*label))
         return {'image': image, 'marks': marking_points, 'slots': slots}
@@ -257,15 +224,6 @@ class ParkingSlotDatasetSingleFolder(Dataset):
 
 
 def load(path, ls = []):
-    '''
-
-    :param path:
-    :type path:
-    :param ls:
-    :type ls:
-    :return:
-    :rtype:
-    '''
     try:
         park_dataset1 = ParkingSlotDataset(path, ls)
         return park_dataset1
@@ -274,13 +232,6 @@ def load(path, ls = []):
 
 
 def collate_mod(data):
-    '''
-
-    :param data:
-    :type data:
-    :return:
-    :rtype:
-    '''
     d = {}
     lengths_marks = []
     lengths_slots = []
