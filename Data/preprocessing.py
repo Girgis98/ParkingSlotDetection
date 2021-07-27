@@ -21,6 +21,11 @@ import random
 
 def rotate_vector(vector, angle_degree):
     """Rotate a vector with given angle in degree."""
+     '''
+    :param vector: desired vector to be rotated
+    :param angle_degree: angle of rotation
+    :return: rotated vector
+    '''
     angle_rad = math.pi * angle_degree / 180
     xval = vector[0] * math.cos(angle_rad) + vector[1] * math.sin(angle_rad)
     yval = -vector[0] * math.sin(angle_rad) + vector[1] * math.cos(angle_rad)
@@ -30,6 +35,11 @@ def rotate_vector(vector, angle_degree):
 
 def rotate_centralized_marks(centralied_marks, angle_degree):
     """Rotate centralized marks with given angle in degree."""
+     '''
+    :param centralied_marks: centralied marks
+    :param angle_degree: angle of rotation
+    :return: rotated marks with the specified angle
+    '''
     rotated_marks = []
     rotated_mark = []
     for i in range(len(centralied_marks)):
@@ -107,6 +117,11 @@ def rotate_centralized_marks(centralied_marks, angle_degree):
 
 def rotate_image(image, angle_degree):
     """Rotate image with given angle in degree."""
+     '''
+    :param image: desired image to be rotated
+    :param angle_degree: angle of rotation
+    :return: rotated image
+    '''
     rows, cols, _ = image.shape
     # print(rows,cols)
     rotation_matrix = cv2.getRotationMatrix2D((rows / 2, cols / 2), angle_degree, 1)
@@ -114,6 +129,13 @@ def rotate_image(image, angle_degree):
 
 
 def generate_dataset(parking_image, name, angle_step, dst_path):
+     '''
+    :param parking_image: (dictionary of) image that will be augmented
+    :param name: name to be saved with
+    :param angle_step: angle of augmentation
+    :param dst_path: destination path that new augmented data will be saved at
+    :return:
+    '''
     for angle in range(0, 360, angle_step):
         added_name = str(angle)
         rotated_marks = rotate_centralized_marks(parking_image['marks'], angle)
@@ -135,6 +157,10 @@ def generate_dataset(parking_image, name, angle_step, dst_path):
 
 
 def load_jpg_json(path):
+     '''
+    :param path: path which are going to load data from
+    :return: names of jpg and json files
+    '''
     try:
         jpg_names = []
         json_names = []
@@ -149,6 +175,11 @@ def load_jpg_json(path):
 
 
 def check_jpeg_json(json_names, jpg_names):
+     '''
+    :param json_names: names of json files
+    :param jpg_names: names of jpg files
+    :return: names of missing json and jpg files
+    '''
     missing_json = []
     missing_jpg = []
     for i in range(len(json_names)):
@@ -163,6 +194,10 @@ def check_jpeg_json(json_names, jpg_names):
 
 
 def remove_empty_images(names_jpg, root_dst):
+     '''
+    :param names_jpg: names of jpg files required to be removed
+    :param root_dst: path of distination
+    '''
     empty_file = []
     for i in range(len(names_jpg)):
         size = Path(f"{root_dst}/{names_jpg[i]}.jpg").stat().st_size
@@ -174,6 +209,10 @@ def remove_empty_images(names_jpg, root_dst):
 
 
 def checkIfDuplicates_2(listOfElems):
+     '''
+    :param listOfElems: list to be checked if any duplicates of its elements
+    :return: boolean output, True if their is a duplicate false otherwise
+    '''
     ''' Check if given list contains any duplicates '''
     setOfElems = set()
     for elem in listOfElems:
@@ -185,6 +224,10 @@ def checkIfDuplicates_2(listOfElems):
 
 
 def remove_miss_labeled_image(names, root_dst):
+      '''
+    :param names: names of labels that will be removed
+    :param root_dst: path of destination
+    '''
     empty = []
     for i, name in enumerate(names):
         print(i)
@@ -201,6 +244,11 @@ def remove_miss_labeled_image(names, root_dst):
 
 
 def invert_image(parking_image, name, dst_path):
+     '''
+    :param parking_image: input image to be inverted
+    :param name: name to be saved with
+    :param dst_path: destination path tp be saved in
+    '''
     invert = torchvision.transforms.RandomVerticalFlip(p=1)  # RandomHorizontalFlip(p=1)
     image_inverted = invert(parking_image['image'])
     image = parking_image['image']
@@ -236,6 +284,10 @@ def invert_image(parking_image, name, dst_path):
 
 
 def jpg_2_pt(root_src, names):
+     '''
+    :param root_src: source path to read images from
+    :param names: list of labels
+    '''
     for i in range(len(names)):
         image = cv2.imread(f"{root_src}/{names[i]}.jpg")
         t = torch.from_numpy(image)
@@ -246,6 +298,12 @@ def jpg_2_pt(root_src, names):
 
 
 def random_generation(file_size, root_src, root_dst, added_name):
+     '''
+    :param file_size: file size
+    :param root_src: source path to read images from
+    :param root_dst: destination path to save images in
+    :param added_name: name to be added to the image name
+    '''
     names = []
     for file in os.listdir(root_src):
         if file.endswith(".json"):
@@ -274,6 +332,9 @@ class Rescale(object):
     """
 
     def __init__(self, output_size):
+        """
+        initialization of rescaler class
+        """
         assert isinstance(output_size, (int, tuple))
         self.output_size = output_size
 
