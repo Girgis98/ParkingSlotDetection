@@ -303,7 +303,7 @@ def init_marking_points_model():
     :return: model:  model after initialization with its weights
     """
     model = MarkingPointDetector()#.to(device)
-    checkpoint = torch.load(r'350k_after_shape_cp1_v10',map_location=torch.device('cpu'))  # weights path
+    checkpoint = torch.load(r'weights_path',map_location=torch.device('cpu'))  # weights path
     model.load_state_dict(checkpoint['model_state_dict'])
     return model
 
