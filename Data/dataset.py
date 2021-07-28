@@ -31,14 +31,17 @@ Slot = namedtuple('Slot', ['p1', 'p2', 'angle', 'parking_shape'])
 ### Class version that reads images from certain number of folders
 """
 
-MarkingPoint = namedtuple('MarkingPoint', ['x', 'y', 'direction_x', 'direction_y', 'shape'])
-Slot = namedtuple('Slot', ['x1', 'y1', 'x2', 'y2'])
-
-
 class ParkingSlotDataset(Dataset):
     """Parking slot dataset."""
 
     def __init__(self, root, names_ls = []):
+        '''
+        Initialize Dataset
+        :param root: Path of the dataset folder
+        :type root: string
+        :param names_ls: list of files names 
+        :type names_ls: list
+        '''
 
         super(ParkingSlotDataset, self).__init__()
         self.root = root
@@ -62,6 +65,11 @@ class ParkingSlotDataset(Dataset):
                 print('total len:', len(self.sample_names))
 
     def split(self):
+        '''
+        Splits dataset into train and test sets
+        :return: returns 0 on success
+        :rtype: int
+        '''
         total_num = len(self.sample_names)
         train_num = int(0.85 * total_num)
 
@@ -70,8 +78,16 @@ class ParkingSlotDataset(Dataset):
         self.all_samples = self.sample_names.copy()
         self.sample_names = self.all_samples[0: train_num]
         self.test_names = self.all_samples[train_num:]
+        return 0
 
     def change_mode(self, mode):
+        '''
+        Change from/to test/train set
+        :param mode: "train" or "test"
+        :type mode: string
+        :return: returns 0 on success
+        :rtype: int
+        '''
         if mode == 'train' and self.mode == 'test':
             self.sample_names, self.test_names = self.test_names.copy(), self.sample_names.copy()
             self.mode = 'train'
@@ -79,8 +95,16 @@ class ParkingSlotDataset(Dataset):
         elif mode == 'test' and self.mode == 'train':
             self.sample_names, self.test_names = self.test_names.copy(), self.sample_names.copy()
             self.mode = 'test'
+        return 0    
 
     def __getitem__(self, index):
+        '''
+         Gets a sample by index
+        :param index: index of sample
+        :type index: int
+        :return: sample
+        :rtype: dictionary
+        '''
         try:
             name = self.sample_names[index]
             image = cv.imread(f"{self.root}/{name}.jpg")
@@ -124,21 +148,36 @@ class ParkingSlotDataset(Dataset):
         return {'image': image, 'marks': marking_points, 'slots': slots}
 
     def __len__(self):
+        '''
+        Return number of samples in working set
+        :return: number of samples
+        :rtype: int
+        '''
         return len(self.sample_names)
 
     def __set__(self, index, value):
-        # save file name then delete file thrn create another file with new data
+        '''
+        Changes a sample by index
+        :param index: sample index
+        :type index: int
+        :param value: new sample data
+        :type value: dictionary
+        :return: returns 0 on success
+        :rtype: int
+        '''
+        # save file name then delete file then create another file with new data
         name = self.sample_names[index]
         in_image = value['image']
         in_image = in_image.permute(1, 2, 0)
         in_image = cv2.cvtColor(np.array(in_image), cv2.COLOR_RGB2BGR)
-        in_image = cv.convertScaleAbs(in_image, alpha = (255.0))
-        cv2.imwrite((f"{self.root}/{name}.jpg"), in_image)
+        in_image = cv.convertScaleAbs(in_image, alpha = 255.0)
+        cv2.imwrite(f"{self.root}/{name}.jpg", in_image)
         in_json = {}
         in_json = {'marks': value['marks'], 'slots': value['slots']}
         path = f"{self.root}/{name}.json"
         json.dump(in_json, codecs.open(path, 'w', encoding = 'utf-8'),
-                  separators = (',', ':'), sort_keys = True)  ### this saves the array in .json format
+                  separators = (',', ':'), sort_keys = True)  # this saves the array in .json format
+        return 0
 
 
 """ Class version that reads images from 1 folder (small scale)
@@ -149,7 +188,13 @@ class ParkingSlotDatasetSingleFolder(Dataset):
     """Parking slot dataset."""
 
     def __init__(self, root, names_ls = []):
-
+        '''
+        Initialize Dataset
+        :param root: Path of the dataset folder
+        :type root: string
+        :param names_ls: list of files names 
+        :type names_ls: list
+        '''
         super(ParkingSlotDatasetSingleFolder, self).__init__()
         self.root = root
         self.sample_names = names_ls.copy()
@@ -160,6 +205,13 @@ class ParkingSlotDatasetSingleFolder(Dataset):
                     self.sample_names.append(os.path.splitext(file)[0])
 
     def __getitem__(self, index):
+        '''
+         Gets a sample by index
+        :param index: index of sample
+        :type index: int
+        :return: sample
+        :rtype: dictionary
+        '''
         try:
             name = self.sample_names[index]
             image = cv.imread(f"{self.root}/{name}.jpg")
@@ -179,33 +231,47 @@ class ParkingSlotDatasetSingleFolder(Dataset):
         marking_points = []
         slots = []
 
-        with open((f"{self.root}/{name}.json"), ) as file:
+        with open(f"{self.root}/{name}.json", ) as file:
             if not isinstance(json.load(file)['marks'][0], list):
-                with open((f"{self.root}/{name}.json"), ) as file:
+                with open(f"{self.root}/{name}.json", ) as file:
                     marking_points.append(MarkingPoint(*json.load(file)['marks']))
             else:
-                with open((f"{self.root}/{name}.json"), ) as file:
+                with open(f"{self.root}/{name}.json", ) as file:
                     for label in np.array(json.load(file)['marks']):
                         marking_points.append(MarkingPoint(*label))
 
-        with open((f"{self.root}/{name}.json"), ) as file:
-            if (len(json.load(file)['slots']) == 0):
+        with open(f"{self.root}/{name}.json", ) as file:
+            if len(json.load(file)['slots']) == 0:
                 pass
             else:
-                with open((f"{self.root}/{name}.json"), ) as file:
+                with open(f"{self.root}/{name}.json", ) as file:
                     if not isinstance(json.load(file)['slots'][0], list):
-                        with open((f"{self.root}/{name}.json"), ) as file:
+                        with open(f"{self.root}/{name}.json", ) as file:
                             slots.append(Slot(*(json.load(file)['slots'])))
                     else:
-                        with open((f"{self.root}/{name}.json"), ) as file:
+                        with open(f"{self.root}/{name}.json", ) as file:
                             for label in json.load(file)['slots']:
                                 slots.append(Slot(*label))
         return {'image': image, 'marks': marking_points, 'slots': slots}
 
     def __len__(self):
+        '''
+        Return number of samples in working set
+        :return: number of samples
+        :rtype: int
+        '''
         return len(self.sample_names)
 
     def __set__(self, index, value):
+        '''
+        Changes a sample by index
+        :param index: sample index
+        :type index: int
+        :param value: new sample data
+        :type value: dictionary
+        :return: returns 0 on success
+        :rtype: int
+        '''
         # save file name then delete file thrn create another file with new data
         name = self.sample_names[index]
         in_image = value['image']
@@ -224,6 +290,15 @@ class ParkingSlotDatasetSingleFolder(Dataset):
 
 
 def load(path, ls = []):
+    '''
+    A recursive function to load big datasets 
+    :param path: Path of the dataset folder 
+    :type path: string
+    :param ls: List of samples names
+    :type ls: List
+    :return: dataset
+    :rtype: ParkingSlotDataset
+    '''
     try:
         park_dataset1 = ParkingSlotDataset(path, ls)
         return park_dataset1
@@ -232,7 +307,13 @@ def load(path, ls = []):
 
 
 def collate_mod(data):
-    d = {}
+    '''
+    Custom dataloader colate function
+    :param data: List of samples
+    :type data: List
+    :return: batch of samples
+    :rtype: dictionary
+    '''
     lengths_marks = []
     lengths_slots = []
     for i in range(len(data)):
