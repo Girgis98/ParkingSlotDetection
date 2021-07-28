@@ -6,6 +6,15 @@ from model import MarkingPointDetector
 
 
 def eval(output, label):
+    '''
+    Evaluate Model after training
+    :param output: Model Prediction
+    :type output: 6x16x16 tensor
+    :param label: Objective
+    :type label: 6x16x16 tensor
+    :return: accuracy, f1_score, precision, recall
+    :rtype: float64
+    '''
     conf_flag = (label[:, 0, :, :] == 0.5)
     not_conf_flag = (label[:, 0, :, :] == -0.5)
     out = output.permute(0, 2, 3, 1)
@@ -32,7 +41,8 @@ def eval(output, label):
     shape_val = torch.bitwise_not(torch.bitwise_xor((out[conf_flag][:, 5] >= -0.05), label_p[conf_flag][:, 5] == 0.5))
 
     total_positive = (label_p[conf_flag][:, 0]).shape[0]
-
+    
+    '''Calculation Details'''
     # c = torch.sum(confidence_ones).item()
     # x = torch.sum(x_val).item()
     # y = torch.sum(y_val).item()
