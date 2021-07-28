@@ -64,7 +64,7 @@ def objective_exp(x, a, b):
 
 def my_loss_exp(output, label):
     '''
-    Custom MSE Loss Function
+     Custom MSE Loss Function
     :param output: Model Prediction
     :type output: 6x16x16 tensor
     :param label: Objective
